@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GetMovieIn2ch.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace GetMovieIn2ch
+namespace GetMovieIn2ch.Xaml
 {
     /// <summary>
     /// MainWindow.xaml の相互作用ロジック
@@ -22,7 +23,14 @@ namespace GetMovieIn2ch
     {
         public MainWindow()
         {
+            MainWindowViewModel mainViewModel = new MainWindowViewModel();
+            this.DataContext = mainViewModel;
             InitializeComponent();
+        }
+
+        private void textBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+           // if()
         }
     }
 }
