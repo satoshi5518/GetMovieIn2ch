@@ -21,16 +21,31 @@ namespace GetMovieIn2ch.Xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+        #region コンストラクタ
         public MainWindow()
         {
-            MainWindowViewModel mainViewModel = new MainWindowViewModel();
+            this.mainViewModel = new MainWindowViewModel();
             this.DataContext = mainViewModel;
             InitializeComponent();
         }
+        #endregion
+
+        #region フィールド変数
+        private MainWindowViewModel mainViewModel;
+        #endregion
 
         private void textBox_TextChanged(object sender, TextChangedEventArgs e)
         {
            // if()
+        }
+
+        private void addUrl_Click(object sender, RoutedEventArgs e)
+        {
+            UrlInfo addUrlInfo = new UrlInfo();
+            addUrlInfo.Name = this.mainViewModel.AddName;
+            addUrlInfo.Url = this.mainViewModel.AddUrl;
+            addUrlInfo.IdFront = this.mainViewModel.AddIdFront;
+            this.mainViewModel.UrlInfoList.Add(addUrlInfo);
         }
     }
 }

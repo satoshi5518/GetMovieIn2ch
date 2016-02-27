@@ -24,6 +24,20 @@ namespace GetMovieIn2ch.ViewModel
         }
         #endregion
 
+        #region フィールド変数
+        /// <summary>
+        ///  追加名
+        /// </summary>
+        private String _addName;
+        public String AddName
+        {
+            get { return this._addName; }
+            set { this.SetProperty(ref this._addName, value); }
+        }
+
+        /// <summary>
+        /// 追加URL
+        /// </summary>
         private String _addUrl;
         public String AddUrl
         {
@@ -31,12 +45,26 @@ namespace GetMovieIn2ch.ViewModel
             set { this.SetProperty(ref this._addUrl, value); }
         }
 
+        /// <summary>
+        /// 追加識別文字
+        /// </summary>
+        private String _addIdFront;
+        public String AddIdFront
+        {
+            get { return this._addIdFront; }
+            set { this.SetProperty(ref this._addIdFront, value); }
+        }
+
+        /// <summary>
+        ///  URL情報リスト
+        /// </summary>
         private ObservableCollection<UrlInfo> _urlInfoList;
         public ObservableCollection<UrlInfo> UrlInfoList
         {
             get { return this._urlInfoList; }
             set { this.SetProperty(ref this._urlInfoList, value); }
         }
+        #endregion
     }
 
     #region URL情報クラス
