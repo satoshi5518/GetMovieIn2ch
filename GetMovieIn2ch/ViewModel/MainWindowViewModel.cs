@@ -16,17 +16,13 @@ namespace GetMovieIn2ch.ViewModel
         {
             // 初期化
             this.UrlInfoList = new ObservableCollection<UrlInfo>();
-            UrlInfo u1 = new UrlInfo();
-            u1.Name = "test1";
-            u1.Url = "http://www";
-            u1.IdFront = "sm";
-            this.UrlInfoList.Add(u1);
+            this.Url2ChInfoList = new ObservableCollection<Url2ChInfo>();
         }
         #endregion
 
         #region フィールド変数
         /// <summary>
-        ///  追加名
+        ///  追加サイト名
         /// </summary>
         private String _addName;
         public String AddName
@@ -64,6 +60,36 @@ namespace GetMovieIn2ch.ViewModel
             get { return this._urlInfoList; }
             set { this.SetProperty(ref this._urlInfoList, value); }
         }
+
+        /// <summary>
+        ///  2ちゃんスレ名
+        /// </summary>
+        private String _addName2Ch;
+        public String AddName2Ch
+        {
+            get { return this._addName2Ch; }
+            set { this.SetProperty(ref this._addName2Ch, value); }
+        }
+
+        /// <summary>
+        /// ２ちゃん追加URL
+        /// </summary>
+        private String _addUrl2Ch;
+        public String AddUrl2Ch
+        {
+            get { return this._addUrl2Ch; }
+            set { this.SetProperty(ref this._addUrl2Ch, value); }
+        }
+
+        /// <summary>
+        ///  2ちゃんURL情報リスト
+        /// </summary>
+        private ObservableCollection<Url2ChInfo> _url2ChInfoList;
+        public ObservableCollection<Url2ChInfo> Url2ChInfoList
+        {
+            get { return this._url2ChInfoList; }
+            set { this.SetProperty(ref this._url2ChInfoList, value); }
+        }
         #endregion
     }
 
@@ -89,6 +115,25 @@ namespace GetMovieIn2ch.ViewModel
         {
             get { return this._idFront; }
             set { this._idFront = value; }
+        }
+    }
+    #endregion
+
+    #region 2ちゃんURL情報クラス
+    public class Url2ChInfo
+    {
+        private String _name2Ch;
+        public String Name2Ch
+        {
+            get { return this._name2Ch; }
+            set { this._name2Ch = value; }
+        }
+
+        private String _url2Ch;
+        public String Url2Ch
+        {
+            get { return this._url2Ch; }
+            set { this._url2Ch = value; }
         }
     }
     #endregion

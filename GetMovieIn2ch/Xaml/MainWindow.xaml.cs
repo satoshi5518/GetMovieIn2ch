@@ -34,18 +34,33 @@ namespace GetMovieIn2ch.Xaml
         private MainWindowViewModel mainViewModel;
         #endregion
 
-        private void textBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-           // if()
-        }
-
-        private void addUrl_Click(object sender, RoutedEventArgs e)
+        #region イベント処理
+        /// <summary>
+        /// 追加ボタンイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void addBtn_Click(object sender, RoutedEventArgs e)
         {
             UrlInfo addUrlInfo = new UrlInfo();
             addUrlInfo.Name = this.mainViewModel.AddName;
             addUrlInfo.Url = this.mainViewModel.AddUrl;
             addUrlInfo.IdFront = this.mainViewModel.AddIdFront;
             this.mainViewModel.UrlInfoList.Add(addUrlInfo);
+        }
+        #endregion
+
+        /// <summary>
+        /// 2Ch追加ボタンイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void add2ChBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Url2ChInfo url2chInfo = new Url2ChInfo();
+            url2chInfo.Name2Ch = this.mainViewModel.AddName2Ch;
+            url2chInfo.Url2Ch = this.mainViewModel.AddUrl2Ch;
+            this.mainViewModel.Url2ChInfoList.Add(url2chInfo);
         }
     }
 }
