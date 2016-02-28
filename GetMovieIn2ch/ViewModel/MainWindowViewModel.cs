@@ -5,8 +5,10 @@ using System.Collections.ObjectModel;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace GetMovieIn2ch.ViewModel
 {
@@ -92,6 +94,11 @@ namespace GetMovieIn2ch.ViewModel
             get { return this._url2ChInfoList; }
             set { this.SetProperty(ref this._url2ChInfoList, value); }
         }
+
+        /// <summary>
+        /// エンコード種類
+        /// </summary>
+        private Encoding encod = Encoding.Unicode;
         #endregion
 
         #region 処理
@@ -104,7 +111,7 @@ namespace GetMovieIn2ch.ViewModel
             {
 
                 // StreamReaderでファイルを読み込む
-                System.IO.StreamReader reader = (new System.IO.StreamReader(@ConfigurationManager.AppSettings["UrlInfoListPath"], Encoding.Unicode));
+                System.IO.StreamReader reader = (new System.IO.StreamReader(@ConfigurationManager.AppSettings["UrlInfoListPath"], this.encod));
 
                 // 読み込みできる文字がなくなるまで繰り返す
                 while (reader.Peek() >= 0)
@@ -136,7 +143,7 @@ namespace GetMovieIn2ch.ViewModel
         public void writeUrlInfoList()
         {
             string filePath = @ConfigurationManager.AppSettings["UrlInfoListPath"];
-            StreamWriter sw = new StreamWriter(filePath, false, Encoding.Unicode);
+            StreamWriter sw = new StreamWriter(filePath, false, this.encod);
 
             foreach (UrlInfo urlInfo in this.UrlInfoList)
             {
@@ -150,11 +157,11 @@ namespace GetMovieIn2ch.ViewModel
         /// </summary>
         public void loadUrl2ChInfoList()
         {
-            if (System.IO.File.Exists(@"./InText/UrlInfoList.txt"))
+            if (System.IO.File.Exists(@ConfigurationManager.AppSettings["Url2ChInfoListPath"]))
             {
 
                 // StreamReaderでファイルを読み込む
-                System.IO.StreamReader reader = (new System.IO.StreamReader(@ConfigurationManager.AppSettings["Url2ChInfoListPath"], Encoding.Unicode));
+                System.IO.StreamReader reader = (new System.IO.StreamReader(@ConfigurationManager.AppSettings["Url2ChInfoListPath"], this.encod));
 
                 // 読み込みできる文字がなくなるまで繰り返す
                 while (reader.Peek() >= 0)
@@ -185,7 +192,7 @@ namespace GetMovieIn2ch.ViewModel
         public void writeUrl2ChInfoList()
         {
             string filePath = @ConfigurationManager.AppSettings["Url2ChInfoListPath"];
-            StreamWriter sw = new StreamWriter(filePath, false, Encoding.Unicode);
+            StreamWriter sw = new StreamWriter(filePath, false, this.encod);
 
             foreach (Url2ChInfo url2ChInfo in this.Url2ChInfoList)
             {
@@ -194,6 +201,49 @@ namespace GetMovieIn2ch.ViewModel
             sw.Close();
         }
 
+        /// <summary>
+        /// HTMLの書き込み
+        /// </summary>
+        public void writeHtml()
+        {
+            string filePath = @ConfigurationManager.AppSettings["OutPutHtmlPath"];
+            StreamWriter sw = new StreamWriter(filePath, false, this.encod);
+            sw.WriteLine("<Html>");
+            sw.WriteLine("&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;");
+            
+            foreach (Url2ChInfo url2ChInfo in this.Url2ChInfoList)
+            {
+                sw.WriteLine(this.GetHtml(url2ChInfo.Url2Ch));
+            }
+            sw.WriteLine("</Html>");
+            sw.Close();
+        }
+
+        /// <summary>
+        /// 引数urlにアクセスした際に取得できるHTMLを返します。
+        /// </summary>
+        /// <param name="url">URL(アドレス)</param>
+        /// <returns>取得したHTML</returns>
+        private string GetHtml(string url)
+        {
+            // 指定されたURLに対してのRequestを作成します。
+            var req = (HttpWebRequest)WebRequest.Create(url);
+
+            // html取得文字列
+            string html = "";
+
+            // 指定したURLに対してReqestを投げてResponseを取得します。
+            using (var res = (HttpWebResponse)req.GetResponse())
+            using (var resSt = res.GetResponseStream())
+            // 取得した文字列をUTF8でエンコードします。
+            using (var sr = new StreamReader(resSt, Encoding.GetEncoding("Shift_JIS")))
+            {
+                // HTMLを取得する。
+                html = sr.ReadToEnd();
+            }
+
+            return html;
+        }
         #endregion
     }
 

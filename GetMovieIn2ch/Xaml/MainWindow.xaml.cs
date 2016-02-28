@@ -85,5 +85,16 @@ namespace GetMovieIn2ch.Xaml
             // 2ちゃんURL情報Txtの書き込み
             this.mainViewModel.writeUrl2ChInfoList();
         }
+
+        /// <summary>
+        /// 解析結果をHTMLファイルに出力
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void outPutHtmlBtn_Click(object sender, RoutedEventArgs e)
+        {
+            //HTMLファイルの書き込み
+            this.mainViewModel.writeHtml();
+        }
     }
 }
