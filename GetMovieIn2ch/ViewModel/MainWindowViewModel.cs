@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -210,10 +211,32 @@ namespace GetMovieIn2ch.ViewModel
             StreamWriter sw = new StreamWriter(filePath, false, this.encod);
             sw.WriteLine("<Html>");
             sw.WriteLine("&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;");
-            
+
             foreach (Url2ChInfo url2ChInfo in this.Url2ChInfoList)
             {
-                sw.WriteLine(this.GetHtml(url2ChInfo.Url2Ch));
+                sw.WriteLine("<table border=1>");
+                sw.WriteLine("<tr><th>Url</th><th>日時</th></tr>");
+                List<HtmlAnalysisResult> resultList = this.GetHtml(url2ChInfo.Url2Ch);
+                foreach (HtmlAnalysisResult result in resultList)
+                {
+                    Boolean initFlag = true;
+                    foreach (String url in result.Url)
+                    {
+                        if (initFlag)
+                        {
+                            sw.WriteLine("<tr>");
+                            sw.WriteLine("<td><a href=\"" + url +"\">" + url + "</a></td>");
+                            sw.WriteLine("<td rowspan=" + result.Url.Count + ">" + result.Date + "</td>");
+                            sw.WriteLine("</tr>");
+                            initFlag = false;
+                        }
+                        else
+                        {
+                            sw.WriteLine("<tr><td><a href=\"" + url + "\">" + url + "</a></td></tr>");
+                        }
+                    }
+                }
+                sw.WriteLine("</table>");
             }
             sw.WriteLine("</Html>");
             sw.Close();
@@ -224,13 +247,13 @@ namespace GetMovieIn2ch.ViewModel
         /// </summary>
         /// <param name="url">URL(アドレス)</param>
         /// <returns>取得したHTML</returns>
-        private string GetHtml(string url)
+        private List<HtmlAnalysisResult> GetHtml(string url)
         {
             // 指定されたURLに対してのRequestを作成します。
             var req = (HttpWebRequest)WebRequest.Create(url);
 
-            // html取得文字列
-            string html = "";
+            // html取得
+            List<HtmlAnalysisResult> resultList = new List<HtmlAnalysisResult>();
 
             // 指定したURLに対してReqestを投げてResponseを取得します。
             using (var res = (HttpWebResponse)req.GetResponse())
@@ -238,11 +261,111 @@ namespace GetMovieIn2ch.ViewModel
             // 取得した文字列をUTF8でエンコードします。
             using (var sr = new StreamReader(resSt, Encoding.GetEncoding("Shift_JIS")))
             {
+                while (sr.Peek() >= 0)
+                {
+                    String line = sr.ReadLine();
+                    //　前方一致タグチェック
+                    if (line.StartsWith("<dt>"))
+                    {
+                        // <dd>タグ以降の文字列を抜き出し、識別文字が含まれているかチェック
+                        String ddTagOrLater = this.GetDdTagEnclosedString(line);
+                        if (this.CheckId(ddTagOrLater))
+                        {
+
+                            HtmlAnalysisResult result = new HtmlAnalysisResult();
+                            // 日にちの抜き出し
+                            result.Date = this.GetDayEnclosedString(line);
+                            // Urlの抜き出し
+                            result.Url = this.GetUrlEnclosedString(line);
+                            resultList.Add(result);
+                        }
+                    }
+
+                }
                 // HTMLを取得する。
-                html = sr.ReadToEnd();
+                //html = sr.ReadToEnd();
             }
 
-            return html;
+            return resultList;
+        }
+
+        /// <summary>
+        /// 文字列の中に識別文字が含まれているか確認
+        /// 含まれている場合 true
+        /// 含まれていない場合 false
+        /// </summary>
+        /// <param name="str">確認する文字列</param>
+        /// <returns></returns>
+        private bool CheckId(String str)
+        {
+            if ((str != String.Empty) && (str.Length != 0))
+            {
+                foreach (UrlInfo urlInfo in this.UrlInfoList)
+                {
+                    if (str.Contains(urlInfo.IdFront))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+
+        }
+
+        /// <summary>
+        /// "<dd>"タグ以降の文字列の抜き出し
+        /// </summary>
+        /// <param name="str">マッチングする文字列</param>
+        /// <returns></returns>
+        private string GetDdTagEnclosedString(string str)
+        {
+            Regex rgx = new Regex(@"<dd>.*", RegexOptions.IgnoreCase);
+            MatchCollection matches = rgx.Matches(str);
+            if (0 < matches.Count)
+            {
+                return matches[0].Value;
+            }
+            return String.Empty;
+        }
+
+        /// <summary>
+        /// 文字列に含まれる日にちの抜き出し
+        /// </summary>
+        /// <param name="str">マッチングする文字列</param>
+        /// <returns></returns>
+        private string GetDayEnclosedString(string str)
+        {
+            Regex rgx = new Regex(@"\d\d\d\d/\d\d/\d\d(.*).*\d\d:\d\d:\d\d", RegexOptions.IgnoreCase);
+            MatchCollection matches = rgx.Matches(str);
+            if (0 < matches.Count)
+            {
+                return matches[0].Value;
+            }
+            return String.Empty;
+        }
+
+        /// <summary>
+        /// 文字列に含まれるurlを抜き出す
+        /// </summary>
+        /// <param name="str">マッチングする文字列</param>
+        /// <returns></returns>
+        private List<String> GetUrlEnclosedString(string str)
+        {
+            List<String> urlList = new List<string>();
+            foreach (UrlInfo urlInfo in this.UrlInfoList)
+            {
+                Regex rgx = new Regex(@urlInfo.IdFront + ".*?[\\s]", RegexOptions.IgnoreCase);
+                MatchCollection matches = rgx.Matches(str);
+                if (0 < matches.Count)
+                {
+                    foreach (Match match in matches)
+                    {
+                        urlList.Add(urlInfo.Url + match.Value);
+                    }
+                }
+            }
+            return urlList;
         }
         #endregion
     }
@@ -288,6 +411,32 @@ namespace GetMovieIn2ch.ViewModel
         {
             get { return this._url2Ch; }
             set { this._url2Ch = value; }
+        }
+    }
+    #endregion
+
+    #region Html解析結果クラス
+    public class HtmlAnalysisResult
+    {
+
+        /// <summary>
+        /// URL
+        /// </summary>
+        private List<String> _url;
+        public List<String> Url
+        {
+            get { return this._url; }
+            set { this._url = value; }
+        }
+
+        /// <summary>
+        /// 投稿日時
+        /// </summary>
+        private String _date;
+        public String Date
+        {
+            get { return this._date; }
+            set { this._date = value; }
         }
     }
     #endregion
