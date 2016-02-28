@@ -25,6 +25,12 @@ namespace GetMovieIn2ch.Xaml
         public MainWindow()
         {
             this.mainViewModel = new MainWindowViewModel();
+
+            // URL情報Txtの読み込み
+            this.mainViewModel.loadUrlInfoList();
+            // 2ちゃんURL情報Txtの読み込み
+            this.mainViewModel.loadUrl2ChInfoList();
+
             this.DataContext = mainViewModel;
             InitializeComponent();
         }
@@ -42,11 +48,20 @@ namespace GetMovieIn2ch.Xaml
         /// <param name="e"></param>
         private void addBtn_Click(object sender, RoutedEventArgs e)
         {
+            // 値を設定
             UrlInfo addUrlInfo = new UrlInfo();
             addUrlInfo.Name = this.mainViewModel.AddName;
             addUrlInfo.Url = this.mainViewModel.AddUrl;
             addUrlInfo.IdFront = this.mainViewModel.AddIdFront;
             this.mainViewModel.UrlInfoList.Add(addUrlInfo);
+
+            // 入力値のクリア
+            this.mainViewModel.AddName = null;
+            this.mainViewModel.AddUrl = null;
+            this.mainViewModel.AddIdFront = null;
+
+            // URL情報Txtの書き込み
+            this.mainViewModel.writeUrlInfoList();
         }
         #endregion
 
@@ -57,10 +72,18 @@ namespace GetMovieIn2ch.Xaml
         /// <param name="e"></param>
         private void add2ChBtn_Click(object sender, RoutedEventArgs e)
         {
+            // 値を設定
             Url2ChInfo url2chInfo = new Url2ChInfo();
             url2chInfo.Name2Ch = this.mainViewModel.AddName2Ch;
             url2chInfo.Url2Ch = this.mainViewModel.AddUrl2Ch;
             this.mainViewModel.Url2ChInfoList.Add(url2chInfo);
+
+            // 入力値のクリア
+            this.mainViewModel.AddName2Ch = null;
+            this.mainViewModel.AddUrl2Ch = null;
+
+            // 2ちゃんURL情報Txtの書き込み
+            this.mainViewModel.writeUrl2ChInfoList();
         }
     }
 }
