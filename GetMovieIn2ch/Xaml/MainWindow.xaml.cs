@@ -95,6 +95,7 @@ namespace GetMovieIn2ch.Xaml
         {
             //HTMLファイルの書き込み
             this.mainViewModel.writeHtml();
+            MessageBox.Show("解析が完了しました！\nOutフォルダの「解析一覧.html」をご覧ください。");
         }
     }
 }

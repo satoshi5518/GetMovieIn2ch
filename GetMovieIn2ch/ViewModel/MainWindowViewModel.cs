@@ -216,6 +216,7 @@ namespace GetMovieIn2ch.ViewModel
             sw.WriteLine("<Body>");
             foreach (Url2ChInfo url2ChInfo in this.Url2ChInfoList)
             {
+                sw.WriteLine("☆★☆★☆"+ url2ChInfo.Name2Ch + "★☆★☆★");
                 sw.WriteLine("<table border=1>");
                 sw.WriteLine("<tr><th>Url</th><th>日時</th></tr>");
                 List<HtmlAnalysisResult> resultList = this.GetHtml(url2ChInfo.Url2Ch);
