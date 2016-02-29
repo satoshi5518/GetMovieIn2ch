@@ -210,8 +210,10 @@ namespace GetMovieIn2ch.ViewModel
             string filePath = @ConfigurationManager.AppSettings["OutPutHtmlPath"];
             StreamWriter sw = new StreamWriter(filePath, false, this.encod);
             sw.WriteLine("<Html>");
-            sw.WriteLine("&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;");
-
+            sw.WriteLine("<Head>");
+            sw.WriteLine("<Title>解析一覧</Title>");
+            sw.WriteLine("</Head>");
+            sw.WriteLine("<Body>");
             foreach (Url2ChInfo url2ChInfo in this.Url2ChInfoList)
             {
                 sw.WriteLine("<table border=1>");
@@ -225,19 +227,20 @@ namespace GetMovieIn2ch.ViewModel
                         if (initFlag)
                         {
                             sw.WriteLine("<tr>");
-                            sw.WriteLine("<td><a href=\"" + url +"\">" + url + "</a></td>");
+                            sw.WriteLine("<td><a href=\"" + url + "\" target=\"_blank\">" + url + "</a></td>");
                             sw.WriteLine("<td rowspan=" + result.Url.Count + ">" + result.Date + "</td>");
                             sw.WriteLine("</tr>");
                             initFlag = false;
                         }
                         else
                         {
-                            sw.WriteLine("<tr><td><a href=\"" + url + "\">" + url + "</a></td></tr>");
+                            sw.WriteLine("<tr><td><a href=\"" + url + "\" target=\"_blank\">" + url + "</a></td></tr>");
                         }
                     }
                 }
                 sw.WriteLine("</table>");
             }
+            sw.WriteLine("</Body>");
             sw.WriteLine("</Html>");
             sw.Close();
         }
@@ -355,13 +358,15 @@ namespace GetMovieIn2ch.ViewModel
             List<String> urlList = new List<string>();
             foreach (UrlInfo urlInfo in this.UrlInfoList)
             {
-                Regex rgx = new Regex(@urlInfo.IdFront + ".*?[\\s]", RegexOptions.IgnoreCase);
+                // 識別文字から閉じタグまでの文字列を抜き出す。
+                Regex rgx = new Regex("(" + urlInfo.IdFront + ")(.*?)(<|\"|\\s)", RegexOptions.IgnoreCase);
                 MatchCollection matches = rgx.Matches(str);
                 if (0 < matches.Count)
                 {
+                    char[] tagTrim = { '<', ' ', '　', '"' };
                     foreach (Match match in matches)
                     {
-                        urlList.Add(urlInfo.Url + match.Value);
+                        urlList.Add(urlInfo.Url + match.Value.Trim(tagTrim));
                     }
                 }
             }
